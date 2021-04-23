@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Записи в блоге</h1>
+<h1>Кастинг {{cast.name_cast}}</h1>
+<br>
+{% for item in news%}
+<div class="col-md6 border rounded">
+    <h2>{{cast.name_cast}}</h2>
+    {% if item.is_private == True %}
+        <h3>Основной состав</h3>
+    {% endif %}
+    <h5>{{item.name_person}}</h5>
+    <h5>{{item.age}}</h5>
+    <h5>{{item.city}}</h5>
+    <h5>{{item.networks}}</h5>
+    <div>
+        {{item.content}}
+    </div>
+    <div>
+        Автор - {{item.user.name}}, Дата написания - {{item.created_date}}
+        {% if current_user.is_authenticated and current_user == item.user %}
+            <div>
+                <a href="/edit_person/{{ item.id }}" class="btn btn-warning">
+                    Изменить
+                </a>
+                <a href="/news_delete/{{cast.id}}/{{item.id}}" class="btn btn-danger">
+                    Удалить
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+<br>
+{% endfor %}
+{% endblock %}

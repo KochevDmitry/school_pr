@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Созданные кастинги</h1>
+<br>
+{% for item in news%}
+<div class="col-md6 border rounded">
+    <a href="/test_page/{{item.id}}">{{item.name_cast}}</a>
+</div>
+<br>
+{% endfor %}
+{% endblock %}

@@ -5,7 +5,12 @@
 <br>
 {% for item in news%}
 <div class="col-md6 border rounded">
-    <h2>{{cast.name_cast}}</h2>
+
+    <div class="demo">
+    <input type="checkbox" id="{{ loop.index }}" class="hide"/>
+    <label for="{{ loop.index }}" >{{item.name_person}}</label>
+    <div>
+        <h2>{{cast.name_cast}}</h2>
     {% if item.is_private == True %}
         <h3>Основной состав</h3>
     {% endif %}
@@ -28,6 +33,9 @@
                 </a>
             </div>
         {% endif %}
+    </div>
+    </div>
+    <br/>
     </div>
 </div>
 <br>

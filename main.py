@@ -40,8 +40,8 @@ def all_castings():
         casts = None
     return render_template("all_castings.html", news=casts)
 
-@app.route('/test_page/<int:id>')
-def test_page(id):
+@app.route('/casting/<int:id>')
+def casting(id):
     db_sess = db_session.create_session()
     if current_user.is_authenticated:
         news = db_sess.query(News).filter(
@@ -52,7 +52,7 @@ def test_page(id):
     else:
         news = None
         cast = None
-    return render_template("test_page.html", news=news, cast=cast)
+    return render_template("casting.html", news=news, cast=cast)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -224,7 +224,7 @@ def news_delete(id, cast_id):
         db_sess.commit()
     else:
         abort(404)
-    return redirect('/test_page/{}'.format(cast_id))
+    return redirect('/casting/{}'.format(cast_id))
 
 
 if __name__ == '__main__':

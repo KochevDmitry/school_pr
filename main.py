@@ -10,12 +10,23 @@ from flask_login import LoginManager, login_user, logout_user, login_required, c
 from School_and_Yandex_project.data.users import User
 from School_and_Yandex_project.forms.user import RegisterForm
 from School_and_Yandex_project.data.news import News
+import git
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 login_manager = LoginManager()
 login_manager.init_app(app)
 
+@app.route('/update_server', methods=['POST'])
+    def webhook():
+        if request.method == 'POST':
+            repo = git.Repo('path/to/git_repo')
+            origin = repo.remotes.origin
+            origin.pull()
+            return 'Updated PythonAnywhere successfully', 200
+        else:
+            return 'Wrong event type', 400 
+        
 def main():
     db_session.global_init("db/blogs.db")
     app.run(port=8080, host='127.0.0.1')

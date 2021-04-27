@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Добавление нескольких людей</h1>
+<form action="" method="post">
+    {{ form.hidden_tag() }}
+    <p>
+        <p class="brd">
+            Кастинг: "{{cast.name_cast}}"
+        </p>
+        <style>
+           .brd {
+                border: 2px solid black;
+                 padding: 10px;
+           }
+        </style>
+    </p>
+    <p>
+        {{ form.content.label }}<br>
+        {{ form.content(class="form-control") }}<br>
+        {% for error in form.content.errors %}
+            <p content="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+        {% endfor %}
+    </p>
+    <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+    {{message}}
+</form>
+{% endblock %}

@@ -8,68 +8,9 @@
           integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
           crossorigin="anonymous">
     <title>{{title}}</title>
-    <style type="text/css">
-        /* скрываем блоки с содержанием */
-.hide,
-.hide + label ~ div {
-    display: none;
-}
-/* вид текста label */
-.hide + label {
-    margin: 0;
-    padding: 0;
-    color: green;
-    cursor: pointer;
-    display: inline-block;
-}
-/* развернутый вид */
-.hide:checked + label {
-    color: red;
-    border-bottom: 0;
-}
-/* показ блоков с содержанием  */
-.hide:checked + label + div {
-    display: block;
-    /* анимация при появлении */
-     -webkit-animation:fade ease-in 0.5s;
-     -moz-animation:fade ease-in 0.5s;
-     animation:fade ease-in 0.5s;
-}
-/* анимация при появлении скрытых блоков */
-@-moz-keyframes fade {
-    from { opacity: 0; }
-to { opacity: 1 }
-}
-@-webkit-keyframes fade {
-    from { opacity: 0; }
-to { opacity: 1 }
-}
-@keyframes fade {
-    from { opacity: 0; }
-to { opacity: 1 }
-}
-.hide + label:before {
-    background-color: #1e90ff;
-    color: #fff;
-    content: "\002B";
-    display: block;
-    float: left;
-    font-size: 14px;
-    font-weight: bold;
-    height: 16px;
-    line-height: 16px;
-    margin: 3px 5px;
-    text-align: center;
-    width: 16px;
-    -webkit-border-radius: 50%;
-    -moz-border-radius: 50%;
-    border-radius: 50%;
-}
-.hide:checked + label:before {
-    content: "\2212";
-}
-
-    </style>
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
 </head>
 <body>
 <header>

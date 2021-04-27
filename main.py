@@ -1,3 +1,4 @@
+import base64
 from os import abort
 from flask import Flask, render_template, redirect, request
 
@@ -5,6 +6,7 @@ from School_and_Yandex_project.data.castings import Casting
 from School_and_Yandex_project.forms.edit_person import EditPerson
 from School_and_Yandex_project.forms.loginform import LoginForm
 from School_and_Yandex_project.forms.news import NewsForm
+from School_and_Yandex_project.forms.search_person import SearchPerson
 from data import db_session
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from School_and_Yandex_project.data.users import User
@@ -20,13 +22,15 @@ login_manager.init_app(app)
 @app.route('/update_server', methods=['POST'])
     def webhook():
         if request.method == 'POST':
-            repo = git.Repo('https://github.com/KochevDmitry/school_pr.git')
+            repo = git.Repo('path/to/git_repo')
             origin = repo.remotes.origin
+
             origin.pull()
+
             return 'Updated PythonAnywhere successfully', 200
         else:
-            return 'Wrong event type', 400 
-        
+            return 'Wrong event type', 400
+
 def main():
     db_session.global_init("db/blogs.db")
     app.run(port=8080, host='127.0.0.1')
@@ -51,19 +55,35 @@ def all_castings():
         casts = None
     return render_template("all_castings.html", news=casts)
 
-@app.route('/casting/<int:id>')
-def casting(id):
+@app.route('/casting/<int:id>/<sort>', methods=['GET', 'POST'])
+def casting(id, sort):
     db_sess = db_session.create_session()
+    form = SearchPerson()
     if current_user.is_authenticated:
-        news = db_sess.query(News).filter(
-            News.user == current_user, News.cast_id == id)
-
+        if sort == 'none':
+            news = db_sess.query(News).filter(
+                News.user == current_user, News.cast_id == id)
+        elif sort == 'main':
+            news = db_sess.query(News).filter(
+                News.user == current_user, News.cast_id == id, News.is_private == True)
+        elif sort == 'name':
+            news = db_sess.query(News).filter(
+                News.user == current_user, News.cast_id == id).order_by(News.name_person)
+        elif sort == 'age':
+            news = db_sess.query(News).filter(
+                News.user == current_user, News.cast_id == id).order_by(News.age)
         cast = db_sess.query(Casting).filter(
             Casting.id == id).first()
+
+        if form.is_submitted():
+            info = form.search_info.data
+            print(info)
+            news = db_sess.query(News).filter(
+                News.user == current_user, News.name_person.like('%{}%'.format(info)))
     else:
         news = None
         cast = None
-    return render_template("casting.html", news=news, cast=cast)
+    return render_template("casting.html", news=news, cast=cast, sort=sort, form=form)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -140,6 +160,7 @@ def add_casting():
             news.age = str(array[2])
             news.city = array[3]
             news.networks = array[4]
+            news.photo = None
             news.content= array[5]
             current_user.news.append(news)
             db_sess.merge(current_user)
@@ -184,9 +205,45 @@ def make(text, name):#создать кастинг или добавить че
     print(grand_list)
     return grand_list
 
-@app.route('/edit_person/<int:id>', methods=['GET', 'POST'])
+@app.route('/add_several_person/<int:cast_id>', methods=['GET', 'POST'])
 @login_required
-def edit_news(id):
+def add_several_person(cast_id):
+    form = NewsForm()
+    db_sess = db_session.create_session()
+    cast = db_sess.query(Casting).filter(Casting.id == cast_id).first()
+    print(cast)
+    print(cast.name_cast)
+    if form.is_submitted():
+        print(cast.name_cast, cast.user_id)
+        text = form.content.data
+        grand_array = make(text, form.name.data)
+        for array in grand_array:
+            db_sess = db_session.create_session()
+            news = News()
+            news.cast_id = cast.id
+            print(array)
+            if array[4] == 'ОСНОВНОЙ СОСТАВ':
+                news.is_private = True
+                del array[4]
+            else:
+                news.is_private = False
+            print(news.is_private, array[4][:-1])
+            news.name_person = array[1]
+            news.age = str(array[2])
+            news.city = array[3]
+            news.networks = array[4]
+            news.photo = None
+            news.content= array[5]
+            current_user.news.append(news)
+            db_sess.merge(current_user)
+        db_sess.commit()
+        return redirect('/casting/{}/none'.format(cast_id))
+    return render_template('add_several_person.html', title='Добавление новости',
+                           form=form, cast = cast)
+
+@app.route('/edit_person/<int:cast_id>/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_news(cast_id, id):
     form = EditPerson()
     if request.method == "GET":
         db_sess = db_session.create_session()
@@ -214,8 +271,12 @@ def edit_news(id):
             news.networks = form.networks.data
             news.is_private = form.is_main.data
             news.content = form.content.data
+            f=form.photo.data
+            with open('static/img/{}.png'.format(id), 'wb') as fil:
+                fil.write(f.read())
+            #news.photo = base64.b64encode(f.read()[2:-1])
             db_sess.commit()
-            return redirect('/')
+            return redirect('/casting/{}/none'.format(cast_id))
         else:
             abort(404)
     return render_template('edit_person.html',
@@ -223,9 +284,41 @@ def edit_news(id):
                            form=form
                            )
 
-@app.route('/news_delete/<int:cast_id>/<int:id>', methods=['GET', 'POST'])
+@app.route('/add_person/<int:cast_id>', methods=['GET', 'POST'])
 @login_required
-def news_delete(id, cast_id):
+def add_person(cast_id):
+    form = EditPerson()
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        news = News()
+        if news:
+            news.name_person = form.name.data
+            news.age = form.age.data
+            news.city = form.city.data
+            news.networks = form.networks.data
+            news.is_private = form.is_main.data
+            news.content = form.content.data
+            news.cast_id = cast_id
+            news_test = db_sess.query(News).all()
+            print(news_test[-1].id)
+            f=form.photo.data
+            with open('static/img/{}.png'.format(news_test[-1].id + 1), 'wb') as fil:
+                fil.write(f.read())
+            #news.photo = base64.b64encode(f.read()[2:-1])
+            current_user.news.append(news)
+            db_sess.merge(current_user)
+            db_sess.commit()
+            return redirect('/casting/{}/none'.format(cast_id))
+        else:
+            abort(404)
+    return render_template('edit_person.html',
+                           title='Редактирование новости',
+                           form=form
+                           )
+
+@app.route('/news_delete/<int:cast_id>/<int:id>/<sort>', methods=['GET', 'POST'])
+@login_required
+def news_delete(id, cast_id, sort):
     db_sess = db_session.create_session()
     news = db_sess.query(News).filter(News.id == id,
                                       News.user == current_user
@@ -235,7 +328,13 @@ def news_delete(id, cast_id):
         db_sess.commit()
     else:
         abort(404)
-    return redirect('/casting/{}'.format(cast_id))
+    return redirect('/casting/{}/{}'.format(cast_id, sort))
+
+@app.route('/test')
+#@login_required
+def test():
+    return render_template('test.html')
+
 
 
 if __name__ == '__main__':

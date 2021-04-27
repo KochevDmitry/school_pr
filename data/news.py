@@ -15,6 +15,7 @@ class News(SqlAlchemyBase):
     age = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     city = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     networks = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+    photo = sqlalchemy.Column(sqlalchemy.LargeBinary, default=None)
     content = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     created_date = sqlalchemy.Column(sqlalchemy.DateTime,
                                      default=datetime.datetime.now)

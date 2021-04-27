@@ -2,15 +2,40 @@
 
 {% block content %}
 <h1>Кастинг "{{cast.name_cast}}"</h1>
+<form action="" method="post">
+    <div class="btn-group">{{ form.submit(type="submit", class="btn btn-primary") }}
+    {{ form.search_info(class="form-control") }}
+    {% for error in form.search_info.errors %}
+        <p class="alert alert-danger" role="alert">
+            {{ error }}
+        </p>
+    {% endfor %}
+    </div>
+</form>
+<br>
+<div class="btn-group">
+  <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    Сортировать
+  </button>
+  <div class="dropdown-menu">
+      <a class="dropdown-item" href="/casting/{{cast.id}}/age"><button type="button" class="dropdown-item">Возраст</button></a>
+      <a class="dropdown-item" href="/casting/{{cast.id}}/name"><button type="button" class="dropdown-item">Имя</button></a>
+      <div class="dropdown-divider"></div>
+      <a class="dropdown-item" href="/casting/{{cast.id}}/main"><button type="button" class="dropdown-item">Основной состав</button></a>
+      <a class="dropdown-item" href="/casting/{{cast.id}}/none"><button type="button" class="dropdown-item">По умолчанию</button></a>
+  </div>
+</div>
+<br>
+<br>
+<a class="btn btn-primary " href="/add_person/{{cast.id}}">Добавить участника</a>
+<br>
+<br>
+<a class="btn btn-primary " href="/add_several_person/{{cast.id}}">Добавить участников из текса редактора</a>
+<br>
 <br>
 {% for item in news%}
 <div class="col-md6 border rounded">
-
-    <div class="demo">
-    <input type="checkbox" id="{{ loop.index }}" class="hide"/>
-    <label for="{{ loop.index }}" >{{item.name_person}}</label>
-    <div>
-        <h2>{{cast.name_cast}}</h2>
+    <h2>{{cast.name_cast}}</h2>
     {% if item.is_private == True %}
         <h3>Основной состав</h3>
     {% endif %}
@@ -18,6 +43,8 @@
     <h5>{{item.age}}</h5>
     <h5>{{item.city}}</h5>
     <h5>{{item.networks}}</h5>
+    <img src="../../static/img/{{item.id}}.png" width="286" height="407"
+                                        alt="здесь должна была быть картинка, но не нашлась">
     <div>
         {{item.content}}
     </div>
@@ -25,17 +52,14 @@
         Автор - {{item.user.name}}, Дата написания - {{item.created_date}}
         {% if current_user.is_authenticated and current_user == item.user %}
             <div>
-                <a href="/edit_person/{{ item.id }}" class="btn btn-warning">
+                <a href="/edit_person/{{cast.id}}/{{item.id}}" class="btn btn-warning">
                     Изменить
                 </a>
-                <a href="/news_delete/{{cast.id}}/{{item.id}}" class="btn btn-danger">
+                <a href="/news_delete/{{cast.id}}/{{item.id}}/{{sort}}" class="btn btn-danger">
                     Удалить
                 </a>
             </div>
         {% endif %}
-    </div>
-    </div>
-    <br/>
     </div>
 </div>
 <br>

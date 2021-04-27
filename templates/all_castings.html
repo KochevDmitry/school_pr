@@ -1,12 +1,19 @@
 {% extends "base.html" %}
 
 {% block content %}
+{%if news == None %}
+<h1>Кастингов пока что нет</h1>
+{%else%}
 <h1>Созданные кастинги</h1>
 <br>
 {% for item in news%}
 <div class="col-md6 border rounded">
-    <a href="/casting/{{item.id}}/none">{{item.name_cast}}</a>
+    <a href="/casting/{{item.id}}/none" class="btn btn-primary">{{item.name_cast}}</a>
+    <br>
+    <br>
+    <a href="/cast_delete/{{item.id}}" class="btn btn-danger">Удалить</a>
 </div>
 <br>
 {% endfor %}
+{%endif%}
 {% endblock %}

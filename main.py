@@ -1,6 +1,5 @@
 import base64
-from os import abort
-from flask import Flask, render_template, redirect, request
+from flask import Flask, render_template, redirect, request, abort
 
 from School_and_Yandex_project.data.castings import Casting
 from School_and_Yandex_project.forms.edit_person import EditPerson
@@ -18,7 +17,6 @@ app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 login_manager = LoginManager()
 login_manager.init_app(app)
 
-
 def main():
     db_session.global_init("db/blogs.db")
     app.run(port=8080, host='127.0.0.1')
@@ -29,21 +27,23 @@ def load_user(user_id):
     return db_sess.query(User).get(user_id)
 
 @app.route('/')
-@app.route('/index')  # загрузка главной страницы
+@app.route('/index')
 def index():
     return render_template("index.html")
 
-@app.route('/all_castings')  # Отображение кастингов
+@app.route('/all_castings')
 def all_castings():
     db_sess = db_session.create_session()
-    if current_user.is_authenticated:  # Если авторизирован, то заполняем массив casts
+    if current_user.is_authenticated:
         casts = db_sess.query(Casting).filter(
             (Casting.user == current_user))
+        if casts.first() == None:
+            casts = None
     else:
         casts = None
-    return render_template("all_castings.html", news=casts)  # Передаем casts для отображения в виде html
+    return render_template("all_castings.html", news=casts)
 
-@app.route('/casting/<int:id>/<sort>', methods=['GET', 'POST'])  # Отображение определенного кастинга с возможностью сортировки
+@app.route('/casting/<int:id>/<sort>', methods=['GET', 'POST'])
 def casting(id, sort):
     db_sess = db_session.create_session()
     form = SearchPerson()
@@ -51,13 +51,13 @@ def casting(id, sort):
         if sort == 'none':
             news = db_sess.query(News).filter(
                 News.user == current_user, News.cast_id == id)
-        elif sort == 'main':  # Основной состав
+        elif sort == 'main':
             news = db_sess.query(News).filter(
                 News.user == current_user, News.cast_id == id, News.is_private == True)
-        elif sort == 'name':  # По имени
+        elif sort == 'name':
             news = db_sess.query(News).filter(
                 News.user == current_user, News.cast_id == id).order_by(News.name_person)
-        elif sort == 'age':  # По возрасту
+        elif sort == 'age':
             news = db_sess.query(News).filter(
                 News.user == current_user, News.cast_id == id).order_by(News.age)
         cast = db_sess.query(Casting).filter(
@@ -73,12 +73,12 @@ def casting(id, sort):
         cast = None
     return render_template("casting.html", news=news, cast=cast, sort=sort, form=form)
 
-@app.route('/login', methods=['GET', 'POST'])  # Авторизация
+@app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
     if form.validate_on_submit():
         db_sess = db_session.create_session()
-        user = db_sess.query(User).filter(User.email == form.email.data).first()  # Если почта совпадает, то входим
+        user = db_sess.query(User).filter(User.email == form.email.data).first()
         if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember_me.data)
             return redirect("/")
@@ -87,11 +87,11 @@ def login():
                                form=form)
     return render_template('login.html', title='Авторизация', form=form)
 
-@app.route('/register', methods=['GET', 'POST'])  # Регистрация
+@app.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegisterForm()
     if form.validate_on_submit():
-        if form.password.data != form.password_again.data:  # Проверка 
+        if form.password.data != form.password_again.data:
             return render_template('register.html', title='Регистрация',
                                    form=form,
                                    message="Пароли не совпадают")
@@ -111,17 +111,20 @@ def register():
         return redirect('/login')
     return render_template('register.html', title='Регистрация', form=form)
 
-@app.route('/logout')  # Выход
+@app.route('/logout')
 #@login_required
 def logout():
     logout_user()
     return redirect("/")
 
-@app.route('/add_casting', methods=['GET', 'POST'])  # Добавление кастинга
+@app.route('/add_casting', methods=['GET', 'POST'])
 @login_required
 def add_casting():
     form = NewsForm()
     if form.validate_on_submit():
+        if form.content.data == '':
+            return render_template('add_casting.html', title='Добавление новости',
+                                   form=form)
         db_sess = db_session.create_session()
         casting = Casting()
         casting.name_cast = form.name.data
@@ -133,6 +136,9 @@ def add_casting():
         print(cast.name_cast, cast.user_id)
         text = form.content.data
         grand_array = make(text, form.name.data)
+        if grand_array == None:
+            return render_template('add_casting.html', title='Добавление новости',
+                                   form=form)
         for array in grand_array:
             db_sess = db_session.create_session()
             news = News()
@@ -317,6 +323,23 @@ def news_delete(id, cast_id, sort):
     else:
         abort(404)
     return redirect('/casting/{}/{}'.format(cast_id, sort))
+
+@app.route('/cast_delete/<int:id>', methods=['GET', 'POST'])
+@login_required
+def cast_delete(id):
+    db_sess = db_session.create_session()
+    cast = db_sess.query(Casting).filter(Casting.id == id).first()
+    news = db_sess.query(News).filter(News.cast_id == id,
+                                      News.user == current_user
+                                      ).all()
+    if cast:
+        for x in news:
+            db_sess.delete(x)
+        db_sess.delete(cast)
+        db_sess.commit()
+    else:
+        abort(404)
+    return redirect('/all_castings')
 
 @app.route('/test')
 #@login_required

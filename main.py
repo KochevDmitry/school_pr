@@ -1,16 +1,16 @@
 import base64
 from flask import Flask, render_template, redirect, request, abort
 
-from School_and_Yandex_project.data.castings import Casting
-from School_and_Yandex_project.forms.edit_person import EditPerson
-from School_and_Yandex_project.forms.loginform import LoginForm
-from School_and_Yandex_project.forms.news import NewsForm
-from School_and_Yandex_project.forms.search_person import SearchPerson
+from data.castings import Casting
+from forms.edit_person import EditPerson
+from forms.loginform import LoginForm
+from forms.news import NewsForm
+from forms.search_person import SearchPerson
 from data import db_session
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
-from School_and_Yandex_project.data.users import User
-from School_and_Yandex_project.forms.user import RegisterForm
-from School_and_Yandex_project.data.news import News
+from data.users import User
+from forms.user import RegisterForm
+from data.news import News
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'

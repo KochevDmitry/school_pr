@@ -12,24 +12,12 @@ from flask_login import LoginManager, login_user, logout_user, login_required, c
 from School_and_Yandex_project.data.users import User
 from School_and_Yandex_project.forms.user import RegisterForm
 from School_and_Yandex_project.data.news import News
-import git
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 login_manager = LoginManager()
 login_manager.init_app(app)
 
-@app.route('/update_server', methods=['POST'])
-    def webhook():
-        if request.method == 'POST':
-            repo = git.Repo('path/to/git_repo')
-            origin = repo.remotes.origin
-
-            origin.pull()
-
-            return 'Updated PythonAnywhere successfully', 200
-        else:
-            return 'Wrong event type', 400
 
 def main():
     db_session.global_init("db/blogs.db")
@@ -48,12 +36,12 @@ def index():
 @app.route('/all_castings')  # Отображение кастингов
 def all_castings():
     db_sess = db_session.create_session()
-    if current_user.is_authenticated:
+    if current_user.is_authenticated:  # Если авторизирован, то заполняем массив casts
         casts = db_sess.query(Casting).filter(
             (Casting.user == current_user))
     else:
         casts = None
-    return render_template("all_castings.html", news=casts)
+    return render_template("all_castings.html", news=casts)  # Передаем casts для отображения в виде html
 
 @app.route('/casting/<int:id>/<sort>', methods=['GET', 'POST'])  # Отображение определенного кастинга с возможностью сортировки
 def casting(id, sort):
@@ -90,7 +78,7 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         db_sess = db_session.create_session()
-        user = db_sess.query(User).filter(User.email == form.email.data).first()
+        user = db_sess.query(User).filter(User.email == form.email.data).first()  # Если почта совпадает, то входим
         if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember_me.data)
             return redirect("/")
@@ -103,7 +91,7 @@ def login():
 def register():
     form = RegisterForm()
     if form.validate_on_submit():
-        if form.password.data != form.password_again.data:
+        if form.password.data != form.password_again.data:  # Проверка 
             return render_template('register.html', title='Регистрация',
                                    form=form,
                                    message="Пароли не совпадают")

@@ -41,11 +41,11 @@ def load_user(user_id):
     return db_sess.query(User).get(user_id)
 
 @app.route('/')
-@app.route('/index')
+@app.route('/index')  # загрузка главной страницы
 def index():
     return render_template("index.html")
 
-@app.route('/all_castings')
+@app.route('/all_castings')  # Отображение кастингов
 def all_castings():
     db_sess = db_session.create_session()
     if current_user.is_authenticated:
@@ -55,7 +55,7 @@ def all_castings():
         casts = None
     return render_template("all_castings.html", news=casts)
 
-@app.route('/casting/<int:id>/<sort>', methods=['GET', 'POST'])
+@app.route('/casting/<int:id>/<sort>', methods=['GET', 'POST'])  # Отображение определенного кастинга с возможностью сортировки
 def casting(id, sort):
     db_sess = db_session.create_session()
     form = SearchPerson()
@@ -63,13 +63,13 @@ def casting(id, sort):
         if sort == 'none':
             news = db_sess.query(News).filter(
                 News.user == current_user, News.cast_id == id)
-        elif sort == 'main':
+        elif sort == 'main':  # Основной состав
             news = db_sess.query(News).filter(
                 News.user == current_user, News.cast_id == id, News.is_private == True)
-        elif sort == 'name':
+        elif sort == 'name':  # По имени
             news = db_sess.query(News).filter(
                 News.user == current_user, News.cast_id == id).order_by(News.name_person)
-        elif sort == 'age':
+        elif sort == 'age':  # По возрасту
             news = db_sess.query(News).filter(
                 News.user == current_user, News.cast_id == id).order_by(News.age)
         cast = db_sess.query(Casting).filter(
@@ -85,7 +85,7 @@ def casting(id, sort):
         cast = None
     return render_template("casting.html", news=news, cast=cast, sort=sort, form=form)
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/login', methods=['GET', 'POST'])  # Авторизация
 def login():
     form = LoginForm()
     if form.validate_on_submit():
@@ -99,7 +99,7 @@ def login():
                                form=form)
     return render_template('login.html', title='Авторизация', form=form)
 
-@app.route('/register', methods=['GET', 'POST'])
+@app.route('/register', methods=['GET', 'POST'])  # Регистрация
 def register():
     form = RegisterForm()
     if form.validate_on_submit():
@@ -123,13 +123,13 @@ def register():
         return redirect('/login')
     return render_template('register.html', title='Регистрация', form=form)
 
-@app.route('/logout')
+@app.route('/logout')  # Выход
 #@login_required
 def logout():
     logout_user()
     return redirect("/")
 
-@app.route('/add_casting', methods=['GET', 'POST'])
+@app.route('/add_casting', methods=['GET', 'POST'])  # Добавление кастинга
 @login_required
 def add_casting():
     form = NewsForm()

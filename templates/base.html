@@ -81,7 +81,7 @@ to { opacity: 1 }
     <nav class="navbar navbar-dark bg-dark">
 <!--      navbar navbar-light bg-light (если светлая)-->
         <a class="navbar-brand" href="/">Наше приложение</a>
-        {% if current_user.is_authenticated %}
+        {% if current_user.is_authenticated %}  # Если авторизованный пользователь, то отображать кнопку показа кастингов и имя пользователя
             <P>
                 <a class="btn btn-secondary" href="/all_castings" style="margin-right: 20px;">Твои кастинги</a>
                 <a class="navbar-brand" href="/logout" style="margin-top: 5px;">{{ current_user.name }}</a>

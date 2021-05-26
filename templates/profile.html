@@ -83,7 +83,7 @@
         {% if current_user.is_authenticated %}
             <P>
                 <a class="btn btn-secondary" href="/all_castings" style="margin-right: 20px;">Мои кастинги</a>
-                <a class="navbar-brand" href="/profile/{{current_user.id}}" style="margin-top: 5px;">{{ current_user.name }}</a>
+                <a class="btn btn-danger" href="/logout" style="margin-top: 5px;">Выйти</a>
             </P>
         {% else %}
             <p>
@@ -95,7 +95,44 @@
 </header>
 <!-- Begin page content -->
 <main role="main" class="container">
-    {% block content %}{% endblock %}
+<br>
+<br>
+{% if current_user.is_authenticated %}
+<form action="" method="post">
+    {{ form.hidden_tag() }}
+    <h2 class="brd">
+            Почта: {{current_user.email}}
+        </h2>
+    <br>
+    <p>
+        {{ form.name.label }}<br>
+        {{ form.name(class="form-control") }}<br>
+        {% for error in form.name.errors %}
+            <p class="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+        {% endfor %}
+    </p>
+    <p>
+        {{ form.about.label }}<br>
+        {{ form.about(class="form-control") }}<br>
+        {% for error in form.about.errors %}
+            <p class="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+        {% endfor %}
+    </p>
+    <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+    {{message}}
+</form>
+{% else %}
+    <div class="starter-template" style="margin:100px;">
+        <h1>Этот сайт создан для работы с большими кастингами.</h1>
+        <p class="lead">Здесь вы можете создать свои катсинги и работать непосредственно с каждым его участинков с помощью удобных карточек.
+            <br> Вам понадобиться лишь текст редактора и ничего более.
+            <br> Чтобы начать работать надо зарегистрироваться на сайте или войти в аккаунт.</p>
+      </div>
+{% endif %}
 </main>
 </body>
 </html>

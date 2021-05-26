@@ -1,10 +1,10 @@
 import base64
 from flask import Flask, render_template, redirect, request, abort
-
 from data.castings import Casting
 from forms.edit_person import EditPerson
 from forms.loginform import LoginForm
 from forms.news import NewsForm
+from forms.profile_form import Profile
 from forms.search_person import SearchPerson
 from data import db_session
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
@@ -137,6 +137,8 @@ def add_casting():
         text = form.content.data
         grand_array = make(text, form.name.data)
         if grand_array == None:
+            db_sess.delete(cast)
+            db_sess.commit()
             return render_template('add_casting.html', title='Добавление новости',
                                    form=form)
         for array in grand_array:
@@ -166,7 +168,6 @@ def add_casting():
 def make(text, name):#создать кастинг или добавить человека
     grand_list = []
     if text.count('\n') < 3 or text.count('$') < 2:#проверяем правильность текста
-        abort(404)
         return None
     name_cast = name
     a = []
@@ -232,7 +233,7 @@ def add_several_person(cast_id):
             db_sess.merge(current_user)
         db_sess.commit()
         return redirect('/casting/{}/none'.format(cast_id))
-    return render_template('add_several_person.html', title='Добавление новости',
+    return render_template('add_several_person.html', title='Добавление участника',
                            form=form, cast = cast)
 
 @app.route('/edit_person/<int:cast_id>/<int:id>', methods=['GET', 'POST'])
@@ -274,7 +275,7 @@ def edit_news(cast_id, id):
         else:
             abort(404)
     return render_template('edit_person.html',
-                           title='Редактирование новости',
+                           title='Редактирование участника',
                            form=form
                            )
 
@@ -341,11 +342,35 @@ def cast_delete(id):
         abort(404)
     return redirect('/all_castings')
 
-@app.route('/test')
-#@login_required
-def test():
-    return render_template('test.html')
-
+@app.route('/profile/<int:id>', methods=['GET', 'POST'])
+@login_required
+def profile(id):
+    print(id)
+    form = Profile()
+    if request.method == "GET":
+        db_sess = db_session.create_session()
+        user = db_sess.query(User).filter(User.id == id).first()
+        if user:
+            form.name.data = user.name
+            form.about.data = user.about
+        else:
+            abort(404)
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        user = db_sess.query(User).filter(User.id == id).first()
+        if user:
+            user.name = form.name.data
+            user.about = form.about.data
+            print(user)
+            print(user.name, user.email, user.about, id)
+            db_sess.commit()
+            return redirect('/profile/{}'.format(id))
+        else:
+            abort(404)
+    return render_template('profile.html',
+                           title='Профиль',
+                           form=form
+                           )
 
 
 if __name__ == '__main__':

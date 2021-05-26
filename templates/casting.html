@@ -1,73 +1,208 @@
-{% extends "base.html" %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet"
+          href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+          crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <title>{{title}}</title>
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    <style type="text/css">
+                /* скрываем блоки с содержанием */
+        .hide,
+        .hide + label ~ div {
+            display: none;
+        }
+        /* вид текста label */
+        .hide + label {
+            margin: 0;
+            padding: 0;
+            color: green;
+            cursor: pointer;
+            display: inline-block;
+        }
+        /* развернутый вид */
+        .hide:checked + label {
+            color: red;
+            border-bottom: 0;
+        }
+        /* показ блоков с содержанием  */
+        .hide:checked + label + div {
+            display: block;
+            /* анимация при появлении */
+             -webkit-animation:fade ease-in 0.5s;
+             -moz-animation:fade ease-in 0.5s;
+             animation:fade ease-in 0.5s;
+        }
+        /* анимация при появлении скрытых блоков */
+        @-moz-keyframes fade {
+            from { opacity: 0; }
+        to { opacity: 1 }
+        }
+        @-webkit-keyframes fade {
+            from { opacity: 0; }
+        to { opacity: 1 }
+        }
+        @keyframes fade {
+            from { opacity: 0; }
+        to { opacity: 1 }
+        }
+        .hide + label:before {
+            background-color: #1e90ff;
+            color: #fff;
+            content: "\002B";
+            display: block;
+            float: left;
+            font-size: 14px;
+            font-weight: bold;
+            height: 16px;
+            line-height: 16px;
+            margin: 3px 5px;
+            text-align: center;
+            width: 16px;
+            -webkit-border-radius: 50%;
+            -moz-border-radius: 50%;
+            border-radius: 50%;
+        }
+        .hide:checked + label:before {
+            content: "\2212";
+        }
 
-{% block content %}
-<h1>Кастинг "{{cast.name_cast}}"</h1>
-<form action="" method="post">
-    <div class="btn-group">{{ form.submit(type="submit", class="btn btn-primary") }}
-    {{ form.search_info(class="form-control") }}
-    {% for error in form.search_info.errors %}
-        <p class="alert alert-danger" role="alert">
-            {{ error }}
-        </p>
-    {% endfor %}
-    </div>
-</form>
-<br>
-<div class="btn-group">
-  <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-    Сортировать
-  </button>
-  <div class="dropdown-menu">
-      <a class="dropdown-item" href="/casting/{{cast.id}}/age"><button type="button" class="dropdown-item">Возраст</button></a>
-      <a class="dropdown-item" href="/casting/{{cast.id}}/name"><button type="button" class="dropdown-item">Имя</button></a>
-      <div class="dropdown-divider"></div>
-      <a class="dropdown-item" href="/casting/{{cast.id}}/main"><button type="button" class="dropdown-item">Основной состав</button></a>
-      <a class="dropdown-item" href="/casting/{{cast.id}}/none"><button type="button" class="dropdown-item">По умолчанию</button></a>
-  </div>
-</div>
-<br>
-<br>
-<a class="btn btn-primary " href="/add_person/{{cast.id}}">Добавить участника</a>
-<br>
-<br>
-<a class="btn btn-primary " href="/add_several_person/{{cast.id}}">Добавить участников из текса редактора</a>
-<br>
-<br>
+    </style>
+</head>
+<body>
+<header>
+    <nav class="navbar navbar-dark bg-dark">
+<!--      navbar navbar-light bg-light (если светлая)-->
+        {% if current_user.is_authenticated %}
+
+        <div style="display: flex;">
+            <a class="navbar-brand" href="/">MyCast</a>
+            <form action="" method="post">
+                <div class="btn-group">{{ form.submit(type="submit", class="btn btn-primary") }}
+                {{ form.search_info(class="form-control") }}
+                {% for error in form.search_info.errors %}
+                    <p class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </p>
+                {% endfor %}
+                </div>
+            </form>
+            <br>
+            <div class="btn-group ml-2">
+              <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Фильтрация
+              </button>
+              <div class="dropdown-menu">
+                  <a class="dropdown-item" href="/casting/{{cast.id}}/age"><button type="button" class="dropdown-item">Возраст</button></a>
+                  <a class="dropdown-item" href="/casting/{{cast.id}}/name"><button type="button" class="dropdown-item">Имя</button></a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" href="/casting/{{cast.id}}/main"><button type="button" class="dropdown-item">Основной состав</button></a>
+                  <a class="dropdown-item" href="/casting/{{cast.id}}/none"><button type="button" class="dropdown-item">По умолчанию</button></a>
+              </div>
+            </div>
+        </div>
+        <div style="display: flex">
+        <div class="nav-item dropdown">
+            <button role="button" type="button" class="btn dropdown" data-toggle="dropdown">
+                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="white" class="bi bi-file-plus" viewBox="0 0 16 16">
+          <path d="M8.5 6a.5.5 0 0 0-1 0v1.5H6a.5.5 0 0 0 0 1h1.5V10a.5.5 0 0 0 1 0V8.5H10a.5.5 0 0 0 0-1H8.5V6z"/>
+          <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2zm10-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1z"/>
+        </svg>
+            </button>
+            <div class="dropdown-menu animate slideIn">
+                <a class="dropdown-item" href="/add_person/{{cast.id}}">Добавить участника</a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="/add_several_person/{{cast.id}}">Добавить текст редактора</a>
+
+            </div>
+        </div>
+                <a class="btn btn-secondary" href="/all_castings" style="margin-right: 20px;">Мои кастинги</a>
+                <a class="navbar-brand" href="/profile/{{current_user.id}}" style="margin-top: 5px;">{{ current_user.name }}</a>
+        </div>
+        {% else %}
+            <p>
+                <a class="btn btn-primary " href="/register">Зарегистрироваться</a>
+                <a class="btn btn-success" href="/login">Войти</a>
+            </p>
+        {% endif %}
+    </nav>
+</header>
+<main role="main" class="container">
+    <br>
+<h1 align="center">{{cast.name_cast}}</h1>
+    <hr>
+    <br>
 {% for item in news%}
 <div class="col-md6 border rounded">
     <div class="demo">
     <input type="checkbox" id="{{ loop.index }}" class="hide"/>
     <label for="{{ loop.index }}" >{{item.name_person}}</label>
         <div>
-    <h2>{{cast.name_cast}}</h2>
-    {% if item.is_private == True %}
-        <h3>Основной состав</h3>
-    {% endif %}
-    <h5>{{item.name_person}}</h5>
-    <h5>{{item.age}}</h5>
-    <h5>{{item.city}}</h5>
-    <h5>{{item.networks}}</h5>
-    <img src="../../static/img/{{item.id}}.png" width="286" height="407"
-                                        alt="У этого пользователя нет фотографии">
-    <div>
-        {{item.content}}
-    </div>
-    <div>
-        Автор - {{item.user.name}}, Дата написания - {{item.created_date}}
-        {% if current_user.is_authenticated and current_user == item.user %}
-            <div>
-                <a href="/edit_person/{{cast.id}}/{{item.id}}" class="btn btn-warning">
-                    Изменить
-                </a>
-                <a href="/news_delete/{{cast.id}}/{{item.id}}/{{sort}}" class="btn btn-danger">
-                    Удалить
-                </a>
+<!--    <h2>{{cast.name_cast}}</h2>-->
+<!--    {% if item.is_private == True %}-->
+<!--        <h3>Основной состав</h3>-->
+<!--    {% endif %}-->
+<!--    <h5>{{item.name_person}}</h5>-->
+<!--    <h5>{{item.age}}</h5>-->
+<!--    <h5>{{item.city}}</h5>-->
+<!--    <h5>{{item.networks}}</h5>-->
+<!--    <div>-->
+<!--        {{item.content}}-->
+<!--    </div>-->
+<!--    <div>-->
+<!--        Автор - {{item.user.name}}, Дата написания - {{item.created_date}}-->
+<!--        {% if current_user.is_authenticated and current_user == item.user %}-->
+<!--            <div>-->
+<!--                <a href="/edit_person/{{cast.id}}/{{item.id}}" class="btn btn-warning">-->
+<!--                    Изменить-->
+<!--                </a>-->
+<!--                <a href="/news_delete/{{cast.id}}/{{item.id}}/{{sort}}" class="btn btn-danger">-->
+<!--                    Удалить-->
+<!--                </a>-->
+<!--            </div>-->
+<!--        {% endif %}-->
+<!--    </div>-->
+            <div class="card mb-3">
+              <div class="row no-gutters">
+                <div class="col-md-4">
+                  <img src="../../../static/img/{{item.id}}.png" class="card-img" alt="...">
+                </div>
+                <div class="col-md-8">
+                  <div class="card-body">
+                    <h5 class="card-title">{{item.name_person}}</h5>
+                      {% if item.is_private == True %}
+                        <p class="card-text">Основной состав</p>
+                    {% endif %}
+                      <p class="card-text">Возраст: {{item.age}}</p>
+                      <p class="card-text">{{item.city}}</p>
+                      <p class="card-text">{{item.networks}}</p>
+                    <p class="card-text">{{item.content}}</p>
+                    <p class="card-text"><small class="text-muted">Автор - {{item.user.name}}, Дата написания - {{item.created_date}}</small></p>
+                                {% if current_user.is_authenticated and current_user == item.user %}
+                                    <div>
+                                        <a href="/edit_person/{{cast.id}}/{{item.id}}" class="btn btn-outline-dark">
+                                            Изменить
+                                        </a>
+                                        <a href="/news_delete/{{cast.id}}/{{item.id}}/{{sort}}" class="btn btn-outline-danger">
+                                            Удалить
+                                        </a>
+                                    </div>
+                                {% endif %}
+                  </div>
+                </div>
+              </div>
             </div>
-        {% endif %}
-    </div>
     </div>
     </div>
 </div>
 <br>
 {% endfor %}
-{% endblock %}
+</main>
+</body>
+</html>

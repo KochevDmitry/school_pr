@@ -2,6 +2,7 @@
 
 {% block content %}
 <br>
+<br>
 {% if current_user.is_authenticated %}
   <div class="jumbotron">
     <h1>Создайте новый кастинг</h1>
@@ -9,16 +10,11 @@
     <a class="btn btn-lg btn-primary" href="/add_casting" role="button">Создать</a>
   </div>
 <br>
-  <div class="jumbotron">
-    <h1>Посмотрите свои кастинги</h1>
-    <p class="lead">Здесь вы можете открыть созданные вами ранее кастинги.</p>
-    <a class="btn btn-lg btn-primary" href="/all_castings" role="button">Посмотреть</a>
-  </div>
 {% else %}
     <div class="starter-template" style="margin:100px;">
         <h1>Этот сайт создан для работы с большими кастингами.</h1>
         <p class="lead">Здесь вы можете создать свои катсинги и работать непосредственно с каждым его участинков с помощью удобных карточек.
-            <br> Вам понадобиться лишь текст редактора и ничго более.
+            <br> Вам понадобиться лишь текст редактора и ничего более.
             <br> Чтобы начать работать надо зарегистрироваться на сайте или войти в аккаунт.</p>
       </div>
 {% endif %}

@@ -6,5 +6,5 @@ from wtforms.validators import DataRequired
 
 class NewsForm(FlaskForm):
     name = StringField('Название кастинга', validators=[DataRequired()])
-    content = TextAreaField("Текст редактора")
+    content = TextAreaField("Текст редактора", validators=[DataRequired()])
     submit = SubmitField('Применить')
